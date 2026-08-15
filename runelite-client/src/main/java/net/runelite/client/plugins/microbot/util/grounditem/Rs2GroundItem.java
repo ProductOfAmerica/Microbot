@@ -300,7 +300,11 @@ public class Rs2GroundItem {
         final int quantFinal = quantity;
         return runWhilePaused(() -> {
             for (int i = 0; i < quantFinal; i++) {
-                waitForGroundItemDespawn(() -> interact(groundItem), groundItem);
+                // The wait's result is the only evidence the item was taken. Ignoring it meant
+                // re-clicking "Take" on an unconfirmed pickup and returning true regardless.
+                if (!waitForGroundItemDespawn(() -> interact(groundItem), groundItem)) {
+                    return false;
+                }
             }
             return true;
         });
