@@ -866,7 +866,10 @@ public class Rs2InventorySetup {
 						"missing gear %s | bank=%d | inv=%d | need=%d — pausing",
 						item.getName(), bankGear, invGear, item.getQuantity());
 				Microbot.pauseAllScripts.compareAndSet(false, true);
-				continue;
+				// Stop, not continue: pausing means this needs a human, and the other three raises
+				// in this class return immediately for that reason. Continuing left a half-worn
+				// loadout with every script already paused.
+				return false;
 			}
 
 			if (inInventory) {
