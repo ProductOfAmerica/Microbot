@@ -171,8 +171,9 @@ public class ClientSessionManager
 		}
 		catch (IOException ex)
 		{
-			log.warn("Resetting session", ex);
-			sessionId = null;
+			log.warn("Resetting microbot session", ex);
+			// Clearing this one is what makes the null check at the top of this method reopen it.
+			microbotSessionId = null;
 		}
 
 	}
