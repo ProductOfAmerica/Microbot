@@ -63,13 +63,18 @@ public class Rs2Cannon {
         );
         if (!cannonLocation.toWorldPoint().equals(CannonPlugin.getCannonPosition().toWorldPoint())) return false;
 		Microbot.pauseAllScripts.compareAndSet(false, true);
-        Rs2GameObject.interact(cannon, "Fire");
-        Rs2Player.waitForWalking();
-        sleep(1200);
-        Rs2GameObject.interact(cannon, "Fire");
-        sleepUntil(() -> Microbot.getClientThread().runOnClientThreadOptional(() -> Microbot.getClient().getVarpValue(VarPlayer.CANNON_AMMO)).orElse(0) > Rs2Random.between(10, 15));
-		Microbot.pauseAllScripts.compareAndSet(true, false);
-        return true;
+        try {
+            Rs2GameObject.interact(cannon, "Fire");
+            Rs2Player.waitForWalking();
+            sleep(1200);
+            Rs2GameObject.interact(cannon, "Fire");
+            // Unchecked, this claimed a loaded cannon it never observed loading. The wait ends
+            // early on a timeout or a takeover and the caller has no other way to find out.
+            return sleepUntil(() -> Microbot.getClientThread().runOnClientThreadOptional(() -> Microbot.getClient().getVarpValue(VarPlayer.CANNON_AMMO)).orElse(0) > Rs2Random.between(10, 15));
+        } finally {
+            // In a finally: an early exit must not leave every script paused.
+            Microbot.pauseAllScripts.compareAndSet(true, false);
+        }
     }
 
 }
